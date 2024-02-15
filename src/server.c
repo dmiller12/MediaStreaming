@@ -27,7 +27,7 @@ main (int argc, char *argv[])
    * element with pay%d names will be a stream */
   factory = gst_rtsp_media_factory_new ();
   gst_rtsp_media_factory_set_launch (factory,
-      "( avfvideosrc device-index=0 ! vtenc_h264 realtime=true ! rtph264pay name=pay0 pt=96 )");
+      "( aravissrc exposure-auto=on gain-auto=on ! video/x-raw, width=960, height=720, framerate=30/1, format=RGB ! videoconvert ! x264enc speed-preset=veryfast tune=zerolatency ! rtph264pay name=pay0 pt=96 )");
 
   gst_rtsp_media_factory_set_shared (factory, TRUE);
 
