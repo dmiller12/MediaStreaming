@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.0)
 
 project(MediaStreaming)
 
-set(WITH_SERVER "build with server" ON)
-set(WITH_PLAYER "build with player" ON)
+set(WITH_SERVER ON CACHE BOOL "build with server")
+set(WITH_PLAYER ON CACHE BOOL "build with player")
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
