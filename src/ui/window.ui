@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="PlayerAppWindow" parent="GtkApplicationWindow">
+    <property name="title">Live Streams</property>
+    <property name="default-width">640</property>
+    <property name="default-height">480</property>
+    <child>
+      <object id="main_pane" class="GtkPaned">
+        <property name="orientation">GTK_ORIENTATION_HORIZONTAL</property>
+        <property name="wide-handle">TRUE</property>
+
+        <child type="start">
+          <object id="video1" class="VideoWidget">
+            <property name="main">TRUE</property>
+            <signal name="notify::fullscreen" handler="fullscreen_changed" />
+            <signal name="notify::main" handler="main_changed" />
+          </object>
+        </child>
+
+        <child type="end">
+          <object id="vBox" class="GtkBox">
+            <property name="orientation">vertical</property>
+            <property name="valign">center</property>
+            <property name="halign">center</property>
+            <property name="spacing">5</property>
+
+            <child>
+              <object id="video2" class="VideoWidget">
+                <property name="main">FALSE</property>
+                <signal name="notify::fullscreen" handler="fullscreen_changed" />
+                <signal name="notify::main" handler="main_changed" />
+              </object>
+            </child>
+
+            <child>
+              <object id="video3" class="VideoWidget">
+                <property name="main">FALSE</property>
+                <signal name="notify::fullscreen" handler="fullscreen_changed" />
+                <signal name="notify::main" handler="main_changed" />
+              </object>
+            </child>
+
+          </object>
+        </child>
+
+        <property name="resize-start-child">TRUE</property>
+        <property name="resize-end-child">TRUE</property>
+      </object>
+    </child>
+
+  </template>
+</interface>

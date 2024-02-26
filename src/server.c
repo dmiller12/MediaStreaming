@@ -2,47 +2,69 @@
 
 #include <gst/rtsp-server/rtsp-server.h>
 
-int
-main (int argc, char *argv[])
-{
-  GMainLoop *loop;
-  GstRTSPServer *server;
-  GstRTSPMountPoints *mounts;
-  GstRTSPMediaFactory *factory;
+int main(int argc, char *argv[]) {
+    GMainLoop *loop;
+    GstRTSPServer *server;
+    GstRTSPMountPoints *mounts;
+    GstRTSPMediaFactory *front_factory, *back_factory, *inhand_factory;
 
-  gst_init (&argc, &argv);
+    gst_init(&argc, &argv);
 
-  loop = g_main_loop_new (NULL, FALSE);
+    loop = g_main_loop_new(NULL, FALSE);
 
-  /* create a server instance */
-  server = gst_rtsp_server_new ();
+    /* create a server instance */
+    server = gst_rtsp_server_new();
 
-  /* get the mount points for this server, every server has a default object
-   * that be used to map uri mount points to media factories */
-  mounts = gst_rtsp_server_get_mount_points (server);
+    /* get the mount points for this server, every server has a default object
+     * that be used to map uri mount points to media factories */
+    mounts = gst_rtsp_server_get_mount_points(server);
 
-  /* make a media factory for a test stream. The default media factory can use
-   * gst-launch syntax to create pipelines. 
-   * any launch line works as long as it contains elements named pay%d. Each
-   * element with pay%d names will be a stream */
-  factory = gst_rtsp_media_factory_new ();
-  gst_rtsp_media_factory_set_launch (factory,
-      "( aravissrc exposure-auto=on gain-auto=on ! video/x-raw, width=960, height=720, framerate=30/1, format=RGB ! videoconvert ! x264enc speed-preset=veryfast tune=zerolatency ! rtph264pay name=pay0 pt=96 )");
+    gboolean isTest = FALSE;
+    gchar *pipeline_str;
+    if (isTest) {
+        pipeline_str = "( videotestsrc ! video/x-raw, width=960, height=720, framerate=30/1 ! "
+                       "videoconvert ! x264enc speed-preset=veryfast tune=zerolatency ! "
+                       "rtph264pay name=pay0 pt=96 )";
+    } else {
+        pipeline_str =
+            "( aravissrc exposure-auto=on gain-auto=on ! video/x-raw, width=960, height=720, framerate=30/1, "
+            "format=RGB ! videoconvert ! vaapih264enc quality-level=1 ! rtph264pay name=pay0 pt=96 )";
+    }
 
-  gst_rtsp_media_factory_set_shared (factory, TRUE);
+    /* make a media factory for a test stream. The default media factory can use
+     * gst-launch syntax to create pipelines.
+     * any launch line works as long as it contains elements named pay%d. Each
+     * element with pay%d names will be a stream */
+    front_factory = gst_rtsp_media_factory_new();
+    gst_rtsp_media_factory_set_launch(front_factory, pipeline_str);
+    gst_rtsp_media_factory_set_shared(front_factory, TRUE);
+    gst_rtsp_media_factory_set_profiles(front_factory, GST_RTSP_PROFILE_AVPF);
 
-  /* attach the test factory to the /test url */
-  gst_rtsp_mount_points_add_factory (mounts, "/test", factory);
+    back_factory = gst_rtsp_media_factory_new();
+    gst_rtsp_media_factory_set_launch(back_factory, pipeline_str);
+    gst_rtsp_media_factory_set_shared(back_factory, TRUE);
+    gst_rtsp_media_factory_set_profiles(back_factory, GST_RTSP_PROFILE_AVPF);
 
-  /* don't need the ref to the mapper anymore */
-  g_object_unref (mounts);
+    inhand_factory = gst_rtsp_media_factory_new();
+    gst_rtsp_media_factory_set_launch(inhand_factory, pipeline_str);
+    gst_rtsp_media_factory_set_shared(inhand_factory, TRUE);
+    gst_rtsp_media_factory_set_profiles(inhand_factory, GST_RTSP_PROFILE_AVPF);
+    // effective
 
-  /* attach the server to the default maincontext */
-  gst_rtsp_server_attach (server, NULL);
+    /* attach the test factory to the /test url */
+    gst_rtsp_mount_points_add_factory(mounts, "/front", front_factory);
+    gst_rtsp_mount_points_add_factory(mounts, "/back", back_factory);
+    gst_rtsp_mount_points_add_factory(mounts, "/inhand", inhand_factory);
 
-  /* start serving */
-  g_print ("stream ready at rtsp://127.0.0.1:8554/test\n");
-  g_main_loop_run (loop);
+    /* don't need the ref to the mapper anymore */
+    g_object_unref(mounts);
 
-  return 0;
+    /* attach the server to the default maincontext */
+    gst_rtsp_server_attach(server, NULL);
+
+    /* start serving */
+    g_print("stream ready at rtsp://127.0.0.1:8554/{front, back, inhand}\n");
+    g_main_loop_run(loop);
+
+    return 0;
 }

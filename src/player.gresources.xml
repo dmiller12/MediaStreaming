@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/com/ualberta/robotics">
+    <file preprocess="xml-stripblanks" alias="window.ui">src/ui/window.ui</file>
+    <file preprocess="xml-stripblanks" alias="video.ui">src/ui/video.ui</file>
+    <file preprocess="xml-stripblanks" alias="video-menu.ui">src/ui/video-menu.ui</file>
+    <file alias="style.css">src/style/style.css</file>
+  </gresource>
+</gresources>
+
