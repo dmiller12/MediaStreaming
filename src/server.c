@@ -1,4 +1,5 @@
 #include <gst/gst.h>
+#include <stdio.h>
 
 #include <gst/rtsp-server/rtsp-server.h>
 
@@ -21,14 +22,24 @@ int main(int argc, char *argv[]) {
 
     gboolean isTest = FALSE;
     gchar *pipeline_str;
+    gchar front_pipeline[1024];
+    gchar back_pipeline[1024];
+    char inhand_pipeline[1024];
     if (isTest) {
         pipeline_str = "( videotestsrc ! video/x-raw, width=960, height=720, framerate=30/1 ! "
                        "videoconvert ! x264enc speed-preset=veryfast tune=zerolatency ! "
                        "rtph264pay name=pay0 pt=96 )";
+        g_strlcpy(front_pipeline, pipeline_str, sizeof(front_pipeline));
+        g_strlcpy(back_pipeline, pipeline_str, sizeof(back_pipeline));
+        g_strlcpy(inhand_pipeline, pipeline_str, sizeof(inhand_pipeline));
     } else {
+
         pipeline_str =
-            "( aravissrc exposure-auto=on gain-auto=on ! video/x-raw, width=960, height=720, framerate=30/1, "
-            "format=RGB ! videoconvert ! vaapih264enc quality-level=1 ! rtph264pay name=pay0 pt=96 )";
+            "( aravissrc camera-name=%s exposure-auto=on gain-auto=on ! video/x-raw, width=960, height=720, "
+            "framerate=30/1, format=RGB ! videoconvert ! vaapih264enc quality-level=1 ! rtph264pay name=pay0 pt=96 )";
+        snprintf(front_pipeline, sizeof(front_pipeline), pipeline_str, "FLIR-0119E8A8");
+        snprintf(back_pipeline, sizeof(back_pipeline), pipeline_str, "FLIR-0119E8A8"); // TODO: correct camera name
+        snprintf(inhand_pipeline, sizeof(inhand_pipeline), pipeline_str, "FLIR-0119E8AE");
     }
 
     /* make a media factory for a test stream. The default media factory can use
@@ -36,17 +47,17 @@ int main(int argc, char *argv[]) {
      * any launch line works as long as it contains elements named pay%d. Each
      * element with pay%d names will be a stream */
     front_factory = gst_rtsp_media_factory_new();
-    gst_rtsp_media_factory_set_launch(front_factory, pipeline_str);
+    gst_rtsp_media_factory_set_launch(front_factory, front_pipeline);
     gst_rtsp_media_factory_set_shared(front_factory, TRUE);
     gst_rtsp_media_factory_set_profiles(front_factory, GST_RTSP_PROFILE_AVPF);
 
     back_factory = gst_rtsp_media_factory_new();
-    gst_rtsp_media_factory_set_launch(back_factory, pipeline_str);
+    gst_rtsp_media_factory_set_launch(back_factory, back_pipeline);
     gst_rtsp_media_factory_set_shared(back_factory, TRUE);
     gst_rtsp_media_factory_set_profiles(back_factory, GST_RTSP_PROFILE_AVPF);
 
     inhand_factory = gst_rtsp_media_factory_new();
-    gst_rtsp_media_factory_set_launch(inhand_factory, pipeline_str);
+    gst_rtsp_media_factory_set_launch(inhand_factory, inhand_pipeline);
     gst_rtsp_media_factory_set_shared(inhand_factory, TRUE);
     gst_rtsp_media_factory_set_profiles(inhand_factory, GST_RTSP_PROFILE_AVPF);
     // effective
