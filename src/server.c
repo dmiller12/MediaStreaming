@@ -51,17 +51,18 @@ int main(int argc, char *argv[]) {
      * element with pay%d names will be a stream */
     front_factory = gst_rtsp_media_factory_new();
     gst_rtsp_media_factory_set_launch(front_factory, front_pipeline);
-    gst_rtsp_media_factory_set_shared(front_factory, TRUE);
+    // gst_rtsp_media_factory_set_ensure_keyunit_on_start(front_factory, TRUE); // since 1.24
+    // gst_rtsp_media_factory_set_shared(front_factory, TRUE);
     gst_rtsp_media_factory_set_profiles(front_factory, GST_RTSP_PROFILE_AVPF);
 
     back_factory = gst_rtsp_media_factory_new();
     gst_rtsp_media_factory_set_launch(back_factory, back_pipeline);
-    gst_rtsp_media_factory_set_shared(back_factory, TRUE);
+    // gst_rtsp_media_factory_set_shared(back_factory, TRUE);
     gst_rtsp_media_factory_set_profiles(back_factory, GST_RTSP_PROFILE_AVPF);
 
     inhand_factory = gst_rtsp_media_factory_new();
     gst_rtsp_media_factory_set_launch(inhand_factory, inhand_pipeline);
-    gst_rtsp_media_factory_set_shared(inhand_factory, TRUE);
+    // gst_rtsp_media_factory_set_shared(inhand_factory, TRUE);
     gst_rtsp_media_factory_set_profiles(inhand_factory, GST_RTSP_PROFILE_AVPF);
     // effective
 
