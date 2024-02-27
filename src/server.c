@@ -38,7 +38,10 @@ int main(int argc, char *argv[]) {
             "( aravissrc camera-name=%s exposure-auto=on gain-auto=on ! video/x-raw, width=960, height=720, "
             "framerate=30/1, format=RGB ! videoconvert ! vaapih264enc quality-level=1 ! rtph264pay name=pay0 pt=96 )";
         snprintf(front_pipeline, sizeof(front_pipeline), pipeline_str, "FLIR-0119E8A8");
-        snprintf(back_pipeline, sizeof(back_pipeline), pipeline_str, "FLIR-0119E8A8"); // TODO: correct camera name
+        g_strlcpy(back_pipeline,
+                  "( v4l2src device=/dev/video1 ! video/x-raw, width=960, height=720, framerate=30/1, format=RGB ! "
+                  "videoconvert ! vaapih264enc quality-level=1 ! rtph264pay name=pay0 pt=96 )",
+                  sizeof(back_pipeline));
         snprintf(inhand_pipeline, sizeof(inhand_pipeline), pipeline_str, "FLIR-0119E8AE");
     }
 
