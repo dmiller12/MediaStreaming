@@ -12,7 +12,6 @@
         <child>
           <object id="video1" class="VideoWidget">
             <property name="main">TRUE</property>
-            <property name="position">1</property>
             <signal name="notify::fullscreen" handler="fullscreen_changed" />
             <signal name="notify::main" handler="main_changed" />
           </object>
@@ -28,7 +27,6 @@
             <child>
               <object id="video2" class="VideoWidget">
                 <property name="main">FALSE</property>
-                <property name="position">2</property>
                 <signal name="notify::fullscreen" handler="fullscreen_changed" />
                 <signal name="notify::main" handler="main_changed" />
               </object>
@@ -37,7 +35,6 @@
             <child>
               <object id="video3" class="VideoWidget">
                 <property name="main">FALSE</property>
-                <property name="position">3</property>
                 <signal name="notify::fullscreen" handler="fullscreen_changed" />
                 <signal name="notify::main" handler="main_changed" />
               </object>

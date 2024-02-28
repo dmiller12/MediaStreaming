@@ -11,7 +11,6 @@ struct _VideoWidget {
     GtkWidget *menu_button;
     gboolean fullscreen;
     gboolean main;
-    gint position;
 
     CustomData *video_data;
 };
@@ -122,8 +121,6 @@ static void video_widget_class_init(VideoWidgetClass *class) {
     g_object_class_install_property(
         object_class, PROP_MAIN,
         g_param_spec_boolean("main", "Main", "Whether the widget is in the Main pane", FALSE, G_PARAM_READWRITE));
-    g_object_class_install_property(
-        object_class, PROP_MAIN, g_param_spec_int("position", "Position", "Position key", 1, 9, 1, G_PARAM_READWRITE));
     object_class->dispose = video_widget_dispose;
 
     gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class), "/com/ualberta/robotics/video.ui");

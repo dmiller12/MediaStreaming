@@ -157,7 +157,20 @@ int create_pipeline(NetworkParams *params, CustomData *data) {
     GstElement *parse = gst_element_factory_make("h264parse", "h264parse");
     GstElement *decoder = gst_element_factory_make("avdec_h264", "avdec_h264");
     GstElement *converter = gst_element_factory_make("videoconvert", "videoconver");
-    GstElement *videosink = gst_element_factory_make("gtksink", "gtksink");
+    GstElement *videosink = gst_element_factory_make("glsinkbin", "glsinkbin");
+    GstElement *gtkglsink = gst_element_factory_make("gtkglsink", "gtkglsink");
+
+    if ((gtkglsink) && (videosink)) {
+        g_printerr("Successfully created GTK GL Sink");
+
+        g_object_set(videosink, "sink", gtkglsink, NULL);
+        g_object_get(gtkglsink, "widget", &(data->sink_widget), NULL);
+    } else {
+        g_printerr("Could not create gtkglsink, falling back to gtksink.\n");
+
+        videosink = gst_element_factory_make("gtksink", "gtksink");
+        g_object_get(videosink, "widget", &(data->sink_widget), NULL);
+    }
 
     g_object_get(videosink, "widget", &(data->sink_widget), NULL);
 

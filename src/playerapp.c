@@ -40,6 +40,6 @@ static void player_app_class_init(PlayerAppClass *class) {
 }
 
 PlayerApp *player_app_new(void) {
-    return g_object_new(PLAYER_APP_TYPE, "application-id", "com.ualberta.robotics", "flags",
-                        G_APPLICATION_DEFAULT_FLAGS, NULL);
+    return g_object_new(PLAYER_APP_TYPE, "application-id", "com.ualberta.robotics", "flags", G_APPLICATION_FLAGS_NONE,
+                        NULL);
 }
