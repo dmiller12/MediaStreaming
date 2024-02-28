@@ -12,14 +12,11 @@ G_DEFINE_TYPE(PlayerApp, player_app, GTK_TYPE_APPLICATION);
 
 static void player_app_init(PlayerApp *app) {}
 
-static void preferences_activated(GSimpleAction *action, GVariant *parameter, gpointer app) {}
-
 static void quit_activated(GSimpleAction *action, GVariant *parameter, gpointer app) {
     g_application_quit(G_APPLICATION(app));
 }
 
-static GActionEntry app_entries[] = {{"preferences", preferences_activated, NULL, NULL, NULL},
-                                     {"quit", quit_activated, NULL, NULL, NULL}};
+static GActionEntry app_entries[] = {{"quit", quit_activated, NULL, NULL, NULL}};
 
 static void player_app_startup(GApplication *app) {
     const char *quit_accels[2] = {"<Ctrl>Q", NULL};

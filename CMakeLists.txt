@@ -45,7 +45,7 @@ if(WITH_PLAYER)
     )
 
 
-    pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk4)
+    pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk+-3.0)
     add_executable(player 
         src/player.c 
         ${CMAKE_CURRENT_BINARY_DIR}/resources.c 

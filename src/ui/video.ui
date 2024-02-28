@@ -13,12 +13,12 @@
 		<child>
 			<object id="headerBox" class="GtkBox">
 				<property name="orientation">GTK_ORIENTATION_HORIZONTAL</property>
-				<child type="label">
+				<child>
 					<object class="GtkLabel" id="frame_label">
 						<property name="halign">GTK_ALIGN_START</property>
 					</object>
 				</child>
-				<child type="end">
+				<child>
 					<object id="menu_button" class="GtkMenuButton">
 						<property name="halign">GTK_ALIGN_END</property>
 						<property name="hexpand">TRUE</property>
@@ -27,10 +27,9 @@
 			</object>
 		</child>
 		<child>
-			<object class="GtkPicture" id="video">
+			<object class="GtkBox" id="video">
 				<property name="valign">GTK_ALIGN_CENTER</property>
 				<property name="halign">GTK_ALIGN_CENTER</property>
-				<property name="content-fit">GTK_CONTENT_FIT_CONTAIN</property>
 			</object>
 		</child>
 

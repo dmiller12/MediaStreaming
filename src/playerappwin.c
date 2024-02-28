@@ -58,15 +58,14 @@ static gboolean on_key_release(GtkEventControllerKey *self, guint keyval, guint 
 
 static gboolean fullscreen_changed(GtkWidget *widget, GParamSpec *pspec, PlayerAppWindow *win) {
     VideoWidget *video_widget = PLAYER_VIDEO_WIDGET(widget);
-    GtkWidget *parent = gtk_widget_get_parent(widget);
+    GtkWidget *left_pane = gtk_paned_get_child1(GTK_PANED(win->main_pane));
+    GtkWidget *right_pane = gtk_paned_get_child2(GTK_PANED(win->main_pane));
     gboolean is_fullscreen = video_widget_get_fullscreen(video_widget);
     if (is_fullscreen) {
-        if (parent == win->main_pane) {
-            GtkWidget *vbox = gtk_paned_get_end_child(GTK_PANED(parent));
-            gtk_widget_set_visible(vbox, FALSE);
+        if (widget == left_pane) {
+            gtk_widget_set_visible(right_pane, FALSE);
         } else {
-            GtkWidget *vbox = gtk_paned_get_end_child(GTK_PANED(win->main_pane));
-            gtk_widget_set_visible(vbox, TRUE);
+            gtk_widget_set_visible(right_pane, TRUE);
         }
 
         gtk_widget_set_visible(widget, TRUE);
@@ -83,6 +82,7 @@ static gboolean fullscreen_changed(GtkWidget *widget, GParamSpec *pspec, PlayerA
             gtk_widget_set_visible(win->video3, FALSE);
         }
     } else {
+        gtk_widget_set_visible(right_pane, TRUE);
         gtk_widget_set_visible(win->video1, TRUE);
         gtk_widget_set_visible(win->video2, TRUE);
         gtk_widget_set_visible(win->video3, TRUE);
@@ -96,13 +96,14 @@ static gboolean main_changed(GtkWidget *widget, GParamSpec *pspec, PlayerAppWind
     gboolean is_main = video_widget_get_main(video_widget);
     if (is_main) {
 
-        GtkWidget *left_pane = gtk_paned_get_start_child(GTK_PANED(win->main_pane));
-        GtkWidget *right_pane = gtk_paned_get_end_child(GTK_PANED(win->main_pane));
+        GtkWidget *left_pane = gtk_paned_get_child1(GTK_PANED(win->main_pane));
+        GtkWidget *right_pane = gtk_paned_get_child2(GTK_PANED(win->main_pane));
         g_object_ref(widget);
         g_object_ref(left_pane);
-        gtk_box_remove(GTK_BOX(right_pane), GTK_WIDGET(widget));
-        gtk_paned_set_start_child(GTK_PANED(win->main_pane), GTK_WIDGET(widget));
-        gtk_box_append(GTK_BOX(right_pane), GTK_WIDGET(left_pane));
+        gtk_container_remove(GTK_CONTAINER(right_pane), GTK_WIDGET(widget));
+        gtk_container_remove(GTK_CONTAINER(win->main_pane), GTK_WIDGET(left_pane));
+        gtk_paned_add1(GTK_PANED(win->main_pane), GTK_WIDGET(widget));
+        gtk_box_pack_end(GTK_BOX(right_pane), GTK_WIDGET(left_pane), TRUE, TRUE, 0);
         video_widget_set_main(PLAYER_VIDEO_WIDGET(left_pane), FALSE);
 
         g_object_unref(widget);
@@ -156,9 +157,9 @@ int create_pipeline(NetworkParams *params, CustomData *data) {
     GstElement *parse = gst_element_factory_make("h264parse", "h264parse");
     GstElement *decoder = gst_element_factory_make("avdec_h264", "avdec_h264");
     GstElement *converter = gst_element_factory_make("videoconvert", "videoconver");
-    GstElement *videosink = gst_element_factory_make("gtk4paintablesink", "gtk4paintablesink");
+    GstElement *videosink = gst_element_factory_make("gtksink", "gtksink");
 
-    g_object_get(videosink, "paintable", &(data->sink_widget), NULL);
+    g_object_get(videosink, "widget", &(data->sink_widget), NULL);
 
     if (!source || !decode_pay || !parse || !decoder || !videosink) {
         g_printerr("Not all elements could be created.\n");
@@ -192,6 +193,7 @@ Streams *setup_streams(void) {
     streams->inhand = (CustomData *)malloc(sizeof(CustomData));
 
     char *host = "127.0.0.1";
+    // char *host = "192.168.1.11";
     char *port = "8554";
 
     NetworkParams frontParams = {.host = host, .port = port, .path = "/front"};
@@ -233,17 +235,20 @@ static void player_app_window_init(PlayerAppWindow *win) {
     gst_element_set_state(streams->back->pipeline, GST_STATE_PLAYING);
     gst_element_set_state(streams->inhand->pipeline, GST_STATE_PLAYING);
 
-    GtkEventController *key_controller = gtk_event_controller_key_new();
-
-    g_signal_connect(key_controller, "key_released", G_CALLBACK(on_key_release), win);
-    gtk_widget_add_controller(GTK_WIDGET(win), key_controller);
+    g_signal_connect(GTK_WIDGET(win), "key-release-event", G_CALLBACK(on_key_release), win);
 
     // Load the CSS file
     GtkCssProvider *provider = gtk_css_provider_new();
     gtk_css_provider_load_from_resource(provider, "/com/ualberta/robotics/style.css");
 
-    gtk_style_context_add_provider_for_display(gdk_display_get_default(), GTK_STYLE_PROVIDER(provider),
-                                               GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    GdkDisplay *display = gdk_display_get_default();
+    GdkScreen *screen = gdk_display_get_default_screen(display);
+
+    gtk_style_context_add_provider_for_screen(screen, GTK_STYLE_PROVIDER(provider),
+                                              GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+    g_object_unref(provider);
+    gtk_widget_show_all(GTK_WIDGET(win));
 }
 
 static void player_app_window_class_init(PlayerAppWindowClass *class) {

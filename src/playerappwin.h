@@ -9,7 +9,7 @@ G_DECLARE_FINAL_TYPE(PlayerAppWindow, player_app_window, PLAYER, APP_WINDOW, Gtk
 
 typedef struct _CustomData {
     GstElement *pipeline;
-    GdkPaintable *sink_widget;
+    GtkWidget *sink_widget;
 } CustomData;
 
 PlayerAppWindow *player_app_window_new(PlayerApp *app);

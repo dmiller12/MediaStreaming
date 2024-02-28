@@ -2,22 +2,23 @@
 <interface>
   <template class="PlayerAppWindow" parent="GtkApplicationWindow">
     <property name="title">Live Streams</property>
-    <property name="default-width">640</property>
-    <property name="default-height">480</property>
+    <property name="default-width">1280</property>
+    <property name="default-height">960</property>
     <child>
       <object id="main_pane" class="GtkPaned">
         <property name="orientation">GTK_ORIENTATION_HORIZONTAL</property>
         <property name="wide-handle">TRUE</property>
 
-        <child type="start">
+        <child>
           <object id="video1" class="VideoWidget">
             <property name="main">TRUE</property>
+            <property name="position">1</property>
             <signal name="notify::fullscreen" handler="fullscreen_changed" />
             <signal name="notify::main" handler="main_changed" />
           </object>
         </child>
 
-        <child type="end">
+        <child>
           <object id="vBox" class="GtkBox">
             <property name="orientation">vertical</property>
             <property name="valign">center</property>
@@ -27,6 +28,7 @@
             <child>
               <object id="video2" class="VideoWidget">
                 <property name="main">FALSE</property>
+                <property name="position">2</property>
                 <signal name="notify::fullscreen" handler="fullscreen_changed" />
                 <signal name="notify::main" handler="main_changed" />
               </object>
@@ -35,6 +37,7 @@
             <child>
               <object id="video3" class="VideoWidget">
                 <property name="main">FALSE</property>
+                <property name="position">3</property>
                 <signal name="notify::fullscreen" handler="fullscreen_changed" />
                 <signal name="notify::main" handler="main_changed" />
               </object>
@@ -43,8 +46,8 @@
           </object>
         </child>
 
-        <property name="resize-start-child">TRUE</property>
-        <property name="resize-end-child">TRUE</property>
+        <!-- <property name="resize-start-child">TRUE</property> -->
+        <!-- <property name="resize-end-child">TRUE</property> -->
       </object>
     </child>
 
