@@ -15,6 +15,10 @@
             <signal name="notify::fullscreen" handler="fullscreen_changed" />
             <signal name="notify::main" handler="main_changed" />
           </object>
+          <packing>
+            <property name="resize">TRUE</property>
+            <property name="shrink">TRUE</property>
+          </packing>
         </child>
 
         <child>
@@ -41,6 +45,10 @@
             </child>
 
           </object>
+          <packing>
+            <property name="resize">TRUE</property>
+            <property name="shrink">TRUE</property>
+          </packing>
         </child>
 
         <!-- <property name="resize-start-child">TRUE</property> -->

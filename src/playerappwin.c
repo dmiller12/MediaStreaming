@@ -102,7 +102,7 @@ static gboolean main_changed(GtkWidget *widget, GParamSpec *pspec, PlayerAppWind
         g_object_ref(left_pane);
         gtk_container_remove(GTK_CONTAINER(right_pane), GTK_WIDGET(widget));
         gtk_container_remove(GTK_CONTAINER(win->main_pane), GTK_WIDGET(left_pane));
-        gtk_paned_add1(GTK_PANED(win->main_pane), GTK_WIDGET(widget));
+        gtk_paned_pack1(GTK_PANED(win->main_pane), GTK_WIDGET(widget), TRUE, TRUE);
         gtk_box_pack_end(GTK_BOX(right_pane), GTK_WIDGET(left_pane), TRUE, TRUE, 0);
         video_widget_set_main(PLAYER_VIDEO_WIDGET(left_pane), FALSE);
 
