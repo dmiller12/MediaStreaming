@@ -84,7 +84,7 @@ static gboolean refresh_ui(CustomData *data) {
     return TRUE;
 }
 
-// TODO make sure to reutn TRUE to get successive messages, otherwise it stops
+// TODO: make sure to reutn TRUE to get successive messages, otherwise it stops
 // triggering the callback
 static gboolean error_cb(GstBus *bus, GstMessage *msg, CustomData *data) {
     GError *err;
