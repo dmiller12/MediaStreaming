@@ -11,5 +11,8 @@ WORKDIR /app
 
 COPY player player
 COPY server server
+COPY CMakeLists.txt CMakeLists.txt
+
+RUN mkdir build && cd build && cmake .. && make
 
 CMD ["bash"]
