@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:jammy-20240227
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
