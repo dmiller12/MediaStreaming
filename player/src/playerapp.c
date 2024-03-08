@@ -8,9 +8,16 @@ struct _PlayerApp {
     GtkApplication parent;
 };
 
+gchar *opt_host = "127.0.0.1"; // default host
+gint opt_port = 8554;          // default port
+
+static GOptionEntry entries[] = {{"host", 'h', 0, G_OPTION_ARG_STRING, &opt_host, "Hostname to connect to", "HOST"},
+                                 {"port", 'p', 0, G_OPTION_ARG_INT, &opt_port, "Port to connect to", "PORT"},
+                                 {NULL}};
+
 G_DEFINE_TYPE(PlayerApp, player_app, GTK_TYPE_APPLICATION);
 
-static void player_app_init(PlayerApp *app) {}
+static void player_app_init(PlayerApp *app) { g_application_add_main_option_entries(G_APPLICATION(app), entries); }
 
 static void quit_activated(GSimpleAction *action, GVariant *parameter, gpointer app) {
     g_application_quit(G_APPLICATION(app));
@@ -29,6 +36,8 @@ static void player_app_startup(GApplication *app) {
 
 static void player_app_activate(GApplication *app) {
     PlayerAppWindow *win;
+
+    g_print("Looking for streams at %s:%d\n", opt_host, opt_port);
 
     win = player_app_window_new(PLAYER_APP(app));
     gtk_window_present(GTK_WINDOW(win));

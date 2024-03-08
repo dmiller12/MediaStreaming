@@ -23,14 +23,13 @@ typedef struct _Streams {
 } Streams;
 
 typedef struct _NetworkParams {
-    char *host;
-    char *port;
+    gchar *host;
+    gint port;
     char *path;
 } NetworkParams;
 
-static gboolean on_key_release(GtkEventControllerKey *self, guint keyval, guint keycode, GdkModifierType state,
-                               PlayerAppWindow *app_window) {
-
+static gboolean on_key_release(GtkWidget *widget, GdkEventKey *event, PlayerAppWindow *app_window) {
+    guint keyval = event->keyval;
     if ((keyval == GDK_KEY_0) || (keyval == GDK_KEY_Escape)) {
         video_widget_set_fullscreen(PLAYER_VIDEO_WIDGET(app_window->video1), FALSE);
         video_widget_set_fullscreen(PLAYER_VIDEO_WIDGET(app_window->video2), FALSE);
@@ -157,20 +156,7 @@ int create_pipeline(NetworkParams *params, CustomData *data) {
     GstElement *parse = gst_element_factory_make("h264parse", "h264parse");
     GstElement *decoder = gst_element_factory_make("avdec_h264", "avdec_h264");
     GstElement *converter = gst_element_factory_make("videoconvert", "videoconver");
-    GstElement *videosink = gst_element_factory_make("glsinkbin", "glsinkbin");
-    GstElement *gtkglsink = gst_element_factory_make("gtkglsink", "gtkglsink");
-
-    if ((gtkglsink) && (videosink)) {
-        g_printerr("Successfully created GTK GL Sink");
-
-        g_object_set(videosink, "sink", gtkglsink, NULL);
-        g_object_get(gtkglsink, "widget", &(data->sink_widget), NULL);
-    } else {
-        g_printerr("Could not create gtkglsink, falling back to gtksink.\n");
-
-        videosink = gst_element_factory_make("gtksink", "gtksink");
-        g_object_get(videosink, "widget", &(data->sink_widget), NULL);
-    }
+    GstElement *videosink = gst_element_factory_make("gtksink", "gtksink");
 
     g_object_get(videosink, "widget", &(data->sink_widget), NULL);
 
@@ -187,7 +173,7 @@ int create_pipeline(NetworkParams *params, CustomData *data) {
 
     char uri[1000];
 
-    snprintf(uri, sizeof(uri), "rtsp://%s:%s%s", params->host, params->port, params->path);
+    snprintf(uri, sizeof(uri), "rtsp://%s:%d%s", params->host, params->port, params->path);
 
     g_object_set(source, "location", uri, "latency", 10, "do-retransmission", FALSE, "is-live", TRUE,
                  "default-rtsp-version", 32, NULL);
@@ -205,13 +191,9 @@ Streams *setup_streams(void) {
     streams->back = (CustomData *)malloc(sizeof(CustomData));
     streams->inhand = (CustomData *)malloc(sizeof(CustomData));
 
-    char *host = "127.0.0.1";
-    // char *host = "192.168.1.11";
-    char *port = "8554";
-
-    NetworkParams frontParams = {.host = host, .port = port, .path = "/front"};
-    NetworkParams backParams = {.host = host, .port = port, .path = "/back"};
-    NetworkParams inhandParams = {.host = host, .port = port, .path = "/inhand"};
+    NetworkParams frontParams = {.host = opt_host, .port = opt_port, .path = "/front"};
+    NetworkParams backParams = {.host = opt_host, .port = opt_port, .path = "/back"};
+    NetworkParams inhandParams = {.host = opt_host, .port = opt_port, .path = "/inhand"};
 
     int r;
     r = create_pipeline(&frontParams, streams->front);
@@ -247,6 +229,8 @@ static void player_app_window_init(PlayerAppWindow *win) {
     gst_element_set_state(streams->front->pipeline, GST_STATE_PLAYING);
     gst_element_set_state(streams->back->pipeline, GST_STATE_PLAYING);
     gst_element_set_state(streams->inhand->pipeline, GST_STATE_PLAYING);
+
+    gdk_window_set_events(GTK_WINDOW(win), gdk_window_get_events(GTK_WINDOW(win)) | GDK_KEY_RELEASE_MASK);
 
     g_signal_connect(GTK_WIDGET(win), "key-release-event", G_CALLBACK(on_key_release), win);
 
