@@ -23,9 +23,13 @@ term: build
 	docker run ${DOCKER_ARGS} --rm --net=host --privileged -it media_streamer /bin/bash
 
 .PHONY: player
-player: build
+player:
+	docker run ${DOCKER_ARGS} --rm --net=host --privileged  media_streamer build/player/player -h "192.168.1.11"
+
+.PHONY: player-test
+player-test:
 	docker run ${DOCKER_ARGS} --rm --net=host --privileged  media_streamer build/player/player
 
 .PHONY: server
 server: build
-	docker run ${DOCKER_ARGS} --rm --net=host --privileged  media_streamer build/server/server
+	docker run ${DOCKER_ARGS} --rm --net=host --privileged  media_streamer build/server/server 

@@ -230,8 +230,6 @@ static void player_app_window_init(PlayerAppWindow *win) {
     gst_element_set_state(streams->back->pipeline, GST_STATE_PLAYING);
     gst_element_set_state(streams->inhand->pipeline, GST_STATE_PLAYING);
 
-    gdk_window_set_events(GTK_WINDOW(win), gdk_window_get_events(GTK_WINDOW(win)) | GDK_KEY_RELEASE_MASK);
-
     g_signal_connect(GTK_WIDGET(win), "key-release-event", G_CALLBACK(on_key_release), win);
 
     // Load the CSS file
