@@ -11,7 +11,6 @@ struct _PlayerAppWindow {
     GtkWidget *video2;
     GtkWidget *video3;
     GtkWidget *main_pane;
-    GtkWidget *fullVideo;
 };
 
 G_DEFINE_TYPE(PlayerAppWindow, player_app_window, GTK_TYPE_APPLICATION_WINDOW)

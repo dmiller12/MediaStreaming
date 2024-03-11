@@ -36,11 +36,6 @@ static void on_show(VideoWidget *video_widget, gpointer user_data) {
 
 void video_widget_set_video(VideoWidget *widget, CustomData *video_data) {
 
-    // if (widget->video != NULL) {
-    //     // Dispose the existing video widget if needed
-    //     gtk_widget_destroy(widget->video);
-    //
-    //
     widget->video_data = video_data;
     gtk_box_pack_start(GTK_BOX(widget->video), widget->video_data->sink_widget, TRUE, TRUE, 0);
 }
@@ -107,6 +102,24 @@ void video_widget_set_main(VideoWidget *widget, gboolean main) {
     g_object_notify(G_OBJECT(widget), "main");
 }
 
+static void on_main_property_changed(GObject *object, GParamSpec *pspec, gpointer user_data) {
+    GtkWidget *widget = GTK_WIDGET(object);
+    GSimpleAction *action = G_SIMPLE_ACTION(user_data);
+    gboolean is_main;
+
+    g_object_get(widget, "main", &is_main, NULL);
+
+    // Set the state of the action based on the value of the "main" property
+    g_simple_action_set_state(action, g_variant_new_boolean(is_main));
+}
+
+static void on_main_activate(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+    VideoWidget *widget = user_data;
+    gboolean is_active = TRUE;
+    video_widget_set_main(widget, is_active);
+    g_simple_action_set_state(G_SIMPLE_ACTION(action), g_variant_new_boolean(is_active));
+}
+
 static void video_widget_class_init(VideoWidgetClass *class) {
     GObjectClass *object_class = G_OBJECT_CLASS(class);
 
@@ -121,6 +134,7 @@ static void video_widget_class_init(VideoWidgetClass *class) {
     g_object_class_install_property(
         object_class, PROP_MAIN,
         g_param_spec_boolean("main", "Main", "Whether the widget is in the Main pane", FALSE, G_PARAM_READWRITE));
+
     object_class->dispose = video_widget_dispose;
 
     gtk_widget_class_set_template_from_resource(GTK_WIDGET_CLASS(class), "/com/ualberta/robotics/video.ui");
@@ -141,12 +155,15 @@ static void video_widget_init(VideoWidget *widget) {
 
     GSimpleActionGroup *action_group = g_simple_action_group_new();
     GAction *action_full = (GAction *)g_property_action_new("fullscreen", widget, "fullscreen");
-    GAction *action_main = (GAction *)g_property_action_new("main", widget, "main");
     g_action_map_add_action(G_ACTION_MAP(action_group), action_full);
+    GAction *action_main = G_ACTION(g_simple_action_new_stateful("main", NULL, g_variant_new_boolean(FALSE)));
+    g_signal_connect(action_main, "activate", G_CALLBACK(on_main_activate), widget);
     g_action_map_add_action(G_ACTION_MAP(action_group), action_main);
+    g_object_bind_property(widget, "main", G_ACTION(action_main), "enabled", G_BINDING_INVERT_BOOLEAN);
+
+    g_signal_connect(widget, "notify::main", G_CALLBACK(on_main_property_changed), action_main);
 
     gtk_widget_insert_action_group(GTK_WIDGET(widget), "video", G_ACTION_GROUP(action_group));
-
     g_object_unref(action_full);
     g_object_unref(action_main);
 
