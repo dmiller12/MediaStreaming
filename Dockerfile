@@ -7,12 +7,21 @@ RUN apt-get update && \
 	cmake build-essential
 
 RUN ln -snf /usr/share/zoneinfo/America/Edmonton /etc/localtime && echo America/Edmonton > /etc/timezone
+
+# Dev specific stuff
+RUN apt-get install -y clangd-12 && update-alternatives --install /usr/bin/clangd clangd /usr/bin/clangd-12 100
+
 WORKDIR /app
 
 COPY player player
 COPY server server
 COPY CMakeLists.txt CMakeLists.txt
 
-RUN mkdir build && cd build && cmake .. && make
+RUN mkdir build && \
+	cd build && \
+	cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 .. && \
+	make
+
+RUN ln -s  build/compile_commands.json compile_commands.jason
 
 CMD ["bash"]

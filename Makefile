@@ -18,18 +18,18 @@ DOCKER_ARGS = ${DOCKER_VOLUMES} ${DOCKER_ENV_VARS} ${DOCKER_DISPLAY}
 build: Dockerfile
 	docker build -t media_streamer .
 
-.PHONY: term
-term: build
-	docker run ${DOCKER_ARGS} --rm --net=host --privileged -it media_streamer /bin/bash
-
 .PHONY: player
 player:
 	docker run ${DOCKER_ARGS} --rm --net=host --privileged  media_streamer build/player/player -h "192.168.1.11"
 
 .PHONY: player-test
 player-test:
-	docker run ${DOCKER_ARGS} --rm --net=host --privileged  media_streamer build/player/player
+	docker run ${DOCKER_ARGS} --rm --net=host --privileged -e GTK_DEBUG=interactive  media_streamer build/player/player
 
 .PHONY: server
 server: build
 	docker run ${DOCKER_ARGS} --rm --net=host --privileged  media_streamer build/server/server 
+
+.PHONY: dev
+dev: build
+	docker run $(DOCKER_AGS) -it --rm --net=host --privileged -v $(PWD)/server:/app/server -v $(PWD)/player:/app/player -v $(PWD)/.clang-format:/app/.clang-format --name MediaStreaming media_streamer /bin/bash
