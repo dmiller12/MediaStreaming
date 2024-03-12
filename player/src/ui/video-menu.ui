@@ -10,13 +10,6 @@
 				<attribute name="label">Main Screen</attribute>
 				<attribute name="action">video.main</attribute>
 			</item>
-			<item>
-				<attribute name="label">Show Stats</attribute>
-			</item>
-			<item>
-				<attribute name="label">Pause Video</attribute>
-				<attribute name="action">app.quit</attribute>
-			</item>
 		</section>
 	</menu>
 </interface>
