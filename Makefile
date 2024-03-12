@@ -23,12 +23,16 @@ player:
 	docker run ${DOCKER_ARGS} --rm --net=host --privileged  media_streamer build/player/player -h "192.168.1.11"
 
 .PHONY: player-test
-player-test:
+player-test: build
 	docker run ${DOCKER_ARGS} --rm --net=host --privileged -e GTK_DEBUG=interactive  media_streamer build/player/player
 
 .PHONY: server
-server: build
+server: 
 	docker run ${DOCKER_ARGS} --rm --net=host --privileged  media_streamer build/server/server 
+
+.PHONY: server-test
+server-test: build
+	docker run ${DOCKER_ARGS} --rm --net=host --privileged  media_streamer build/server/server test
 
 .PHONY: dev
 dev: build

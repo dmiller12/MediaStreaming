@@ -20,7 +20,10 @@ int main(int argc, char *argv[]) {
      * that be used to map uri mount points to media factories */
     mounts = gst_rtsp_server_get_mount_points(server);
 
-    gboolean isTest = TRUE;
+    gboolean isTest = FALSE;
+    if (argc > 1 && strcmp(argv[1], "test") == 0) {
+        isTest = TRUE;
+    }
     gchar *pipeline_str;
     gchar front_pipeline[1024];
     gchar back_pipeline[1024];
