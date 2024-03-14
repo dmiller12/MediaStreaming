@@ -3,7 +3,7 @@ OS := $(shell uname)
 
 ifeq ($(OS), Linux)
     DOCKER_DISPLAY = --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-		--env DISPLAY=${DISPLAY} --device /dev/dri:/dev/dri
+		--env DISPLAY=${DISPLAY}
 else ifeq ($(OS), Darwin)
     DOCKER_DISPLAY = --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
 		--env DISPLAY=host.docker.internal:0
@@ -19,16 +19,16 @@ build: Dockerfile
 	docker build -t media_streamer .
 
 .PHONY: player
-player:
-	docker run ${DOCKER_ARGS} --rm --net=host --privileged  media_streamer build/player/player -h "192.168.1.11"
+player: build
+	docker run ${DOCKER_ARGS} --rm --net=host --privileged -e GST_DEBUG=3 media_streamer build/player/player -h "192.168.1.11"
 
 .PHONY: player-test
 player-test: build
 	docker run ${DOCKER_ARGS} --rm --net=host --privileged -e GTK_DEBUG=interactive  media_streamer build/player/player
 
 .PHONY: server
-server: 
-	docker run ${DOCKER_ARGS} --rm --net=host --privileged  media_streamer build/server/server 
+server: build
+	docker run ${DOCKER_ARGS} --rm --net=host --privileged -v /dev:/dev media_streamer build/server/server 
 
 .PHONY: server-test
 server-test: build
