@@ -175,7 +175,7 @@ int create_pipeline(NetworkParams *params, CustomData *data) {
     snprintf(uri, sizeof(uri), "rtsp://%s:%d%s", params->host, params->port, params->path);
 
     g_object_set(source, "location", uri, "latency", 10, "do-retransmission", FALSE, "is-live", TRUE,
-                 "default-rtsp-version", 32, NULL);
+                 "default-rtsp-version", 16, NULL);
     g_signal_connect(source, "pad-added", G_CALLBACK(pad_added_handler), decode_pay);
     return 0;
 }
