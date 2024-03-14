@@ -39,13 +39,13 @@ int main(int argc, char *argv[]) {
 
         pipeline_str =
             "( aravissrc camera-name=%s exposure-auto=on gain-auto=on ! video/x-raw, width=960, height=720, "
-            "framerate=30/1, format=RGB ! videoconvert ! vaapih264enc quality-level=1 ! rtph264pay name=pay0 pt=96 )";
-        snprintf(front_pipeline, sizeof(front_pipeline), pipeline_str, "FLIR-0119E8A8");
+            "framerate=30/1, format=RGB ! videoconvert ! vaapih264enc quality-level=7 ! queue ! rtph264pay name=pay0 pt=96 )";
+        snprintf(front_pipeline, sizeof(front_pipeline), pipeline_str, "FLIR-1E100119E8A8-0119E8A8");
         g_strlcpy(back_pipeline,
                   "( v4l2src device=/dev/video2 ! video/x-raw, width=800, height=448, framerate=30/1 ! "
-                  "videoconvert ! vaapih264enc quality-level=1 ! rtph264pay name=pay0 pt=96 )",
+                  "videoconvert ! vaapih264enc quality-level=7 ! queue ! rtph264pay name=pay0 pt=96 )",
                   sizeof(back_pipeline));
-        snprintf(inhand_pipeline, sizeof(inhand_pipeline), pipeline_str, "FLIR-0119E8AE");
+        snprintf(inhand_pipeline, sizeof(inhand_pipeline), pipeline_str, "FLIR-1E100119E8AE-0119E8AE");
     }
 
     /* make a media factory for a test stream. The default media factory can use
@@ -54,31 +54,30 @@ int main(int argc, char *argv[]) {
      * element with pay%d names will be a stream */
     front_factory = gst_rtsp_media_factory_new();
     gst_rtsp_media_factory_set_launch(front_factory, front_pipeline);
-    // gst_rtsp_media_factory_set_ensure_keyunit_on_start(front_factory, TRUE); // since 1.24
-    // gst_rtsp_media_factory_set_shared(front_factory, TRUE);
+    gst_rtsp_media_factory_set_shared(front_factory, TRUE);
     gst_rtsp_media_factory_set_profiles(front_factory, GST_RTSP_PROFILE_AVPF);
 
     back_factory = gst_rtsp_media_factory_new();
     gst_rtsp_media_factory_set_launch(back_factory, back_pipeline);
-    // gst_rtsp_media_factory_set_shared(back_factory, TRUE);
+    gst_rtsp_media_factory_set_shared(back_factory, TRUE);
     gst_rtsp_media_factory_set_profiles(back_factory, GST_RTSP_PROFILE_AVPF);
 
     inhand_factory = gst_rtsp_media_factory_new();
     gst_rtsp_media_factory_set_launch(inhand_factory, inhand_pipeline);
-    // gst_rtsp_media_factory_set_shared(inhand_factory, TRUE);
+    gst_rtsp_media_factory_set_shared(inhand_factory, TRUE);
     gst_rtsp_media_factory_set_profiles(inhand_factory, GST_RTSP_PROFILE_AVPF);
-    // effective
 
     /* attach the test factory to the /test url */
     gst_rtsp_mount_points_add_factory(mounts, "/front", front_factory);
     gst_rtsp_mount_points_add_factory(mounts, "/back", back_factory);
     gst_rtsp_mount_points_add_factory(mounts, "/inhand", inhand_factory);
 
-    /* don't need the ref to the mapper anymore */
-    g_object_unref(mounts);
 
     /* attach the server to the default maincontext */
     gst_rtsp_server_attach(server, NULL);
+
+    /* don't need the ref to the mapper anymore */
+    g_object_unref(mounts);
 
     /* start serving */
     g_print("stream ready at rtsp://127.0.0.1:8554/{front, back, inhand}\n");

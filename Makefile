@@ -27,12 +27,12 @@ player-test: build
 	docker run ${DOCKER_ARGS} --rm --net=host --privileged -e GTK_DEBUG=interactive  media_streamer build/player/player
 
 .PHONY: server
-server: build
-	docker run ${DOCKER_ARGS} --rm --net=host --privileged -v /dev:/dev media_streamer build/server/server 
+server: build 
+	docker run --rm --net=host --privileged -v /dev:/dev -e GST_DEBUG=3  media_streamer build/server/server 
 
 .PHONY: server-test
 server-test: build
-	docker run ${DOCKER_ARGS} --rm --net=host --privileged  media_streamer build/server/server test
+	docker run --rm --net=host --privileged  media_streamer build/server/server test
 
 .PHONY: dev
 dev: build

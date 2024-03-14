@@ -5,9 +5,12 @@ get aravis device name using
 arv-tool-0.8
 ```
 
-This is the camera-name field specified in `server/server.c`
+This is the camera-name field specified in `server/src/server.c`
+To get v4l device (ie USB webcam)
 
-`` 
+```bash
+v4l2-ctl --list-devices
+```
 
 start server with
 `make server`
@@ -15,6 +18,7 @@ start server with
 start player with
 ```
 xhost +local:docker
+xhost +
 make player
 ```
 
