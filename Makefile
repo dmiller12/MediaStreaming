@@ -20,7 +20,7 @@ build: Dockerfile
 
 .PHONY: player
 player: build
-	docker run ${DOCKER_ARGS} --rm --net=host --privileged -e GST_DEBUG=3 media_streamer build/player/player -h "192.168.1.11"
+	docker run ${DOCKER_ARGS} --rm --net=host --privileged -e GST_DEBUG=3 --name media_player media_streamer build/player/player -h "192.168.1.11"
 
 .PHONY: player-test
 player-test: build
@@ -28,7 +28,7 @@ player-test: build
 
 .PHONY: server
 server: build 
-	docker run --rm --net=host --privileged -v /dev:/dev -e GST_DEBUG=3  media_streamer build/server/server 
+	docker run --rm --net=host --privileged -v /dev:/dev -e GST_DEBUG=3 --name media_server  media_streamer build/server/server 
 
 .PHONY: server-test
 server-test: build
