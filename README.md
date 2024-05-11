@@ -18,7 +18,6 @@ start server with
 start player with
 ```
 xhost +local:docker
-xhost +
 make player
 ```
 
