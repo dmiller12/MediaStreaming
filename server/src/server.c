@@ -1,11 +1,32 @@
 #include <gst/gst.h>
 #include <stdio.h>
+#include <signal.h>
 
 #include <gst/rtsp-server/rtsp-server.h>
 
+GstRTSPServer *server;
+
+static gboolean remove_func(GstRTSPSessionPool *pool, GstRTSPSession *session, GstRTSPServer *server) {
+    return GST_RTSP_FILTER_REMOVE;
+}
+
+void signal_handler(int signal) {
+    printf("Exiting\n");
+    if (server != NULL) {
+        GstRTSPSessionPool *pool;
+
+        pool = gst_rtsp_server_get_session_pool(server);
+        gst_rtsp_session_pool_filter(pool, (GstRTSPSessionPoolFilterFunc) remove_func, server);    
+
+        g_object_unref(pool);
+        g_object_unref(server);
+    }
+    exit(0);
+}
+
+
 int main(int argc, char *argv[]) {
     GMainLoop *loop;
-    GstRTSPServer *server;
     GstRTSPMountPoints *mounts;
     GstRTSPMediaFactory *front_factory, *back_factory, *inhand_factory;
 
@@ -29,7 +50,7 @@ int main(int argc, char *argv[]) {
     gchar back_pipeline[1024];
     char inhand_pipeline[1024];
     if (isTest) {
-        pipeline_str = "( videotestsrc ! video/x-raw, width=960, height=720, framerate=30/1 ! "
+        pipeline_str = "( videotestsrc ! video/x-raw, height=720, framerate=30/1 ! "
                        "videoconvert ! x264enc speed-preset=veryfast tune=zerolatency ! "
                        "rtph264pay name=pay0 pt=96 )";
         g_strlcpy(front_pipeline, pipeline_str, sizeof(front_pipeline));
@@ -38,8 +59,8 @@ int main(int argc, char *argv[]) {
     } else {
 
         pipeline_str =
-            "( aravissrc camera-name=%s exposure-auto=on gain-auto=on ! video/x-raw, width=960, height=720, "
-            "framerate=30/1, format=RGB ! videoconvert ! vaapih264enc quality-level=7 ! queue ! rtph264pay name=pay0 pt=96 )";
+            "( aravissrc camera-name=%s exposure-auto=on gain-auto=on ! video/x-raw, width=1920, height=1200, "
+            "framerate=24/1, format=RGB ! videoconvert ! vaapih264enc quality-level=7 ! queue ! rtph264pay name=pay0 pt=96 )";
         snprintf(front_pipeline, sizeof(front_pipeline), pipeline_str, "FLIR-1E100119E8A8-0119E8A8");
         g_strlcpy(back_pipeline,
                   "( v4l2src device=/dev/video2 ! video/x-raw, width=800, height=448, framerate=30/1 ! "
@@ -78,6 +99,10 @@ int main(int argc, char *argv[]) {
 
     /* don't need the ref to the mapper anymore */
     g_object_unref(mounts);
+
+    // Signal handle to clean up resources
+    signal(SIGINT, signal_handler);
+    signal(SIGTERM, signal_handler);
 
     /* start serving */
     g_print("stream ready at rtsp://127.0.0.1:8554/{front, back, inhand}\n");
