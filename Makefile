@@ -14,13 +14,16 @@ DOCKER_ENV_VARS =
 
 DOCKER_ARGS = ${DOCKER_VOLUMES} ${DOCKER_ENV_VARS} ${DOCKER_DISPLAY}
 
+REMOTE_HOST=husky.local
+REMOTE_IP=$(shell getent hosts ${REMOTE_HOST} | awk '{ print $$1 }') 
+
 .PHONY: build
 build: Dockerfile
 	docker build -t media_streamer .
 
 .PHONY: player
 player: build
-	docker run ${DOCKER_ARGS} --rm --net=host --privileged -e GST_DEBUG=3 --name media_player media_streamer build/player/player -h "192.168.1.11"
+	xhost +local:docker; docker run ${DOCKER_ARGS} --rm --network host --privileged -e GST_DEBUG=3 --name media_player media_streamer build/player/player -h ${REMOTE_IP}
 
 .PHONY: player-test
 player-test: build
